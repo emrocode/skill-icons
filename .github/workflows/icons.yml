@@ -32,6 +32,8 @@ jobs:
       - name: Generate Skill Icons
         id: generate-skill-icons
         uses: ./
+        with:
+          out_path: assets/svgs
 
       - name: Commit Changes
         run: |
@@ -39,7 +41,7 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@://github.com"
 
           git add README.md
-          git add ${{ steps.generate-skill-icons.outputs.path }}/*.svg
+          git add ${{ steps.generate-skill-icons.outputs.path }}*.svg
 
           if ! git diff --cached --quiet; then
             git commit -m "docs: automatically update documentation [skip ci]"
