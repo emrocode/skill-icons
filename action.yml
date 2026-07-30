@@ -1,0 +1,41 @@
+name: Skill Icons
+description: Generate dynamic, theme-aware tech stack icons for your GitHub profile README
+author: Emilio Romero
+
+branding:
+  icon: smile
+  color: orange
+
+inputs:
+  icon_size:
+    description: Pixel size for rendered icons (e.g., 24, 48)
+    required: false
+    default: 48
+  per_row:
+    description: Icons per row
+    required: false
+    default: 15
+  out_path:
+    description: Target directory path for exported files
+    required: false
+    default: /assets/svgs/
+  tag:
+    description: Tag identifier used in Markdown
+    required: false
+    default: SKILL_ICONS
+  filename:
+    description: Markdown file path to process
+    required: false
+    default: README.md
+
+outputs:
+  list:
+    description: JSON array of parsed tags and items
+  updated:
+    description: Whether the Markdown file was updated (true/false)
+  path:
+    description: Path where the SVG file was written
+
+runs:
+  using: node24
+  main: out/index.js

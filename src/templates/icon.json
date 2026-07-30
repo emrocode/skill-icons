@@ -1,0 +1,30 @@
+{
+  "type": "div",
+  "props": {
+    "style": {
+      "width": "{{size}}",
+      "height": "{{size}}",
+      "display": "flex",
+      "alignItems": "center",
+      "justifyContent": "center",
+      "backgroundColor": "{{bgColor}}",
+      "borderRadius": "{{borderRadius}}"
+    },
+    "children": {
+      "type": "svg",
+      "props": {
+        "xmlns": "http://w3.org",
+        "viewBox": "0 0 24 24",
+        "width": "{{iconSize}}",
+        "height": "{{iconSize}}",
+        "fill": "{{fill}}",
+        "children": {
+          "type": "path",
+          "props": {
+            "d": "{{path}}"
+          }
+        }
+      }
+    }
+  }
+}

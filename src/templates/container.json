@@ -1,0 +1,12 @@
+{
+  "type": "div",
+  "props": {
+    "style": {
+      "display": "flex",
+      "flexWrap": "wrap",
+      "columnGap": "{{gap}}",
+      "rowGap": "{{gap}}"
+    },
+    "children": "{{children}}"
+  }
+}

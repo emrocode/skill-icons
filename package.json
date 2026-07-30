@@ -1,0 +1,23 @@
+{
+  "version": "1",
+  "dependencies": {
+    "@actions/core": "^3.0.1",
+    "colorjs.io": "^0.7.1",
+    "satori": "^0.29.0",
+    "simple-icons": "^16.27.1",
+    "svgo": "^4.0.2"
+  },
+  "devDependencies": {
+    "@github/local-action": "^7.0.1",
+    "@types/node": "^26.1.2",
+    "@vercel/ncc": "^0.44.1",
+    "tsx": "^4.23.1",
+    "typescript": "~5.9.3"
+  },
+  "scripts": {
+    "build": "rm -Rf out && npm run bundle",
+    "bundle": "ncc build -o out src/core/index.ts --source-map",
+    "start": "local-action . src/core/run.ts .env"
+  },
+  "type": "module"
+}
