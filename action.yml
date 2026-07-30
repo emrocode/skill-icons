@@ -38,4 +38,4 @@ outputs:
 
 runs:
   using: node24
-  main: out/index.js
+  main: out/index.cjs
