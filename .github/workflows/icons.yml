@@ -1,0 +1,49 @@
+name: Skill Icons
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  skill-icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install & Build
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm build
+
+      - name: Generate Skill Icons
+        id: generate-skill-icons
+        uses: ./
+
+      - name: Commit Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@://github.com"
+
+          git add README.md
+          git add ${{ steps.generate-skill-icons.outputs.path }}/*.svg
+
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: automatically update documentation [skip ci]"
+            git push
+          else
+            echo "No changes detected in the generated documentation files"
+          fi
