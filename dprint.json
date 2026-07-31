@@ -5,7 +5,7 @@
   },
   "excludes": [
     "**/node_modules",
-    "**/*-lock.json",
+    "**/*-lock.yaml",
     "**/out/**",
     "**/**/*.svg"
   ],
