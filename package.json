@@ -2,6 +2,7 @@
   "version": "1",
   "dependencies": {
     "@actions/core": "^3.0.1",
+    "@actions/exec": "^3.0.0",
     "colorjs.io": "^0.7.1",
     "satori": "^0.29.0",
     "simple-icons": "^16.27.1",
