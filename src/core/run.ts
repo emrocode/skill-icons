@@ -11,7 +11,7 @@ import { generateSvgFile } from './gen.js';
 // TODO: allow each delimiter to parse its own isolated options
 const DEFAULT_ICON_SIZE = 48;
 const DEFAULT_PER_ROW = 15;
-const DEFAULT_OUT_PATH = '/assets/svgs/';
+const DEFAULT_OUT_PATH = 'assets/svgs';
 const DEFAULT_TAG = 'SKILL_ICONS';
 const DEFAULT_FILENAME = 'README.md';
 
