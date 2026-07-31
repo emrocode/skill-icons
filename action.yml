@@ -3,7 +3,7 @@ description: Generate dynamic, theme-aware tech stack icons for your GitHub prof
 author: Emilio Romero
 
 branding:
-  icon: smile
+  icon: anchor
   color: orange
 
 inputs:
