@@ -13,6 +13,7 @@ export default defineConfig({
   noExternal: [/.*/],
   external: [
     '@actions/core',
+    '@actions/exec',
   ],
   // see https://github.com/csstree/csstree/issues/314
   esbuildPlugins: [

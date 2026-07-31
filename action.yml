@@ -27,6 +27,10 @@ inputs:
     description: Markdown file path to process
     required: false
     default: README.md
+  commit_message:
+    description: A custom git commit message
+    required: false
+    default: "chore(skill-icons): update assets and docs"
 
 outputs:
   list:

@@ -1,3 +1,4 @@
+import { commitChanges } from '@/utils/commit.js';
 import {
   getListFromReadme,
   readReadme,
@@ -14,6 +15,7 @@ const DEFAULT_PER_ROW = 15;
 const DEFAULT_OUT_PATH = 'assets/svgs';
 const DEFAULT_TAG = 'SKILL_ICONS';
 const DEFAULT_FILENAME = 'README.md';
+const DEFAULT_GCMSG = 'chore(skill-icons): update assets and docs';
 
 export async function run() {
   try {
@@ -22,10 +24,12 @@ export async function run() {
     const rawOutPath = core.getInput('out_path', { required: false });
     const rawTag = core.getInput('tag', { required: false });
     const rawFilename = core.getInput('filename', { required: false });
+    const rawGcmsg = core.getInput('commit_message', { required: false });
 
     const tag = rawTag || DEFAULT_TAG;
     const filename = rawFilename || DEFAULT_FILENAME;
     const outPath = rawOutPath || DEFAULT_OUT_PATH;
+    const gcmsg = rawGcmsg || DEFAULT_GCMSG;
 
     const readme = await readReadme(filename);
     const list = getListFromReadme(readme, tag);
@@ -47,6 +51,8 @@ export async function run() {
     if (hasChanged) {
       await writeReadme(updatedReadme, filename);
     }
+
+    await commitChanges(filename, outPath, gcmsg);
 
     core.setOutput('list', list);
     // * 'updated' ignores icon options
