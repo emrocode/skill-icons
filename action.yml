@@ -18,7 +18,7 @@ inputs:
   out_path:
     description: Target directory path for exported files
     required: false
-    default: /assets/svgs/
+    default: assets/svgs
   tag:
     description: Tag identifier used in Markdown
     required: false
