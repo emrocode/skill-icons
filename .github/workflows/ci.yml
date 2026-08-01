@@ -13,15 +13,15 @@ jobs:
   skill-icons:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 11
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -31,16 +31,13 @@ jobs:
           pnpm install --frozen-lockfile --ignore-scripts
           pnpm build
 
-      - name: Test Local Action
-        id: test-action
+      - name: Generate Skill Icons
+        id: generate-skill-icons
         uses: ./
-        with:
-          icon_size: ""
-          per_row: ""
-          out_path: ""
-          tag: TEST
-          filename: TEST.md
 
       - name: Print Output
         id: print-output
-        run: echo "${{ steps.test-action.outputs.list }}"
+        run: |
+          echo "[LIST]: ${{ steps.generate-skill-icons.outputs.list }}"
+          echo "[UPDATED]?: ${{ steps.generate-skill-icons.outputs.updated }}"
+          echo "[PATH]: ${{ steps.generate-skill-icons.outputs.path }}"
