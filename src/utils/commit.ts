@@ -22,14 +22,17 @@ export async function commitChanges(
     await exec.exec('git', ['add', filename]);
     await exec.exec('git', ['add', path]);
 
-    const { stdout } = await exec.getExecOutput('git', [
-      'status',
-      '--porcelain',
-    ]);
+    const { exitCode } = await exec.getExecOutput('git', [
+      'diff',
+      '--cached',
+      '--quiet',
+    ], { ignoreReturnCode: true });
 
-    if (stdout.trim() !== '') {
+    const branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
+
+    if (exitCode === 1) {
       await exec.exec('git', ['commit', '-m', gcmsg]);
-      await exec.exec('git', ['push']);
+      await exec.exec('git', ['push', 'origin', `HEAD:${branch}`]);
     }
   } catch (error) {
     console.error(error);
