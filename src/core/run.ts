@@ -52,7 +52,9 @@ export async function run() {
       await writeReadme(updatedReadme, filename);
     }
 
-    await commitChanges(filename, outPath, gcmsg);
+    if (process.env.GITHUB_ACTIONS === 'true') {
+      await commitChanges(filename, outPath, gcmsg);
+    }
 
     core.setOutput('list', list);
     // * 'updated' ignores icon options
