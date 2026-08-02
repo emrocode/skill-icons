@@ -1,7 +1,5 @@
-import rawContainer from '@/templates/container.json' with { type: 'json' };
-import rawIcon from '@/templates/icon.json' with { type: 'json' };
 import { getBackgroundColor, getContrastColor } from '@/utils/color.js';
-import { parse, parseSlug } from '@/utils/parser.js';
+import { parseSlug } from '@/utils/parser.js';
 import { getIcon } from '@/utils/si.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -19,6 +17,7 @@ export async function generateSvgFile({
   perRow: number;
   outPath: string;
 }) {
+  const snapToPx = (value: number) => Math.round(value);
   const filename = parseSlug(slugs);
   const dir = path.join(process.cwd(), outPath);
 
@@ -28,38 +27,77 @@ export async function generateSvgFile({
   }
 
   const siIcons = slugs.map(i => getIcon(i));
+  const iconSize = snapToPx(size * 0.8);
+  const gap = snapToPx(size / 6);
+  const borderRadius = snapToPx(size / 6);
 
-  const iconEl = parse(
-    JSON.stringify(rawIcon),
-    siIcons.map(icon => ({
-      size,
-      iconSize: size * 0.8,
-      bgColor: getBackgroundColor(getContrastColor('#' + icon.hex)),
-      borderRadius: size / 6,
-      fill: getContrastColor('#' + icon.hex),
-      path: icon.path,
-    })),
-  );
+  const iconEl = siIcons.map(icon => ({
+    type: 'div',
+    props: {
+      style: {
+        width: size,
+        height: size,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: getBackgroundColor(getContrastColor('#' + icon.hex)),
+        borderRadius,
+      },
+      children: {
+        type: 'svg',
+        props: {
+          xmlns: 'http://www.w3.org/2000/svg',
+          viewBox: '0 0 24 24',
+          width: iconSize,
+          height: iconSize,
+          fill: getContrastColor('#' + icon.hex),
+          children: {
+            type: 'path',
+            props: {
+              d: icon.path,
+            },
+          },
+        },
+      },
+    },
+  }));
 
-  const el = parse(JSON.stringify(rawContainer), {
-    gap: size / 6,
-    children: iconEl,
-  });
+  const el = {
+    type: 'div',
+    props: {
+      style: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        columnGap: gap,
+        rowGap: gap,
+      },
+      children: iconEl,
+    },
+  };
 
   const totalItems = slugs.length;
   const cols = Math.min(totalItems, perRow);
   const rows = Math.ceil(totalItems / perRow);
 
   const rawSvg = await satori(el, {
-    width: cols * size + (cols - 1) * (size / 6),
-    height: rows * size + (rows - 1) * (size / 6),
+    width: cols * size + Math.max(0, cols - 1) * gap,
+    height: rows * size + Math.max(0, rows - 1) * gap,
+    pointScaleFactor: 2,
     fonts: [],
   });
 
   const { data: svg } = optimize(rawSvg, {
     multipass: true,
     plugins: [
-      'preset-default',
+      {
+        name: 'preset-default',
+        params: {
+          overrides: {
+            cleanupNumericValues: { floatPrecision: 2 },
+            convertPathData: { floatPrecision: 2 },
+          },
+        },
+      },
       'reusePaths',
     ],
   });
