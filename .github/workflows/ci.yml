@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  skill-icons:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -32,12 +32,12 @@ jobs:
           pnpm build
 
       - name: Generate Skill Icons
-        id: generate-skill-icons
+        id: skill-icons
         uses: ./
 
       - name: Print Output
         id: print-output
         run: |
-          echo "[LIST]: ${{ steps.generate-skill-icons.outputs.list }}"
-          echo "[UPDATED]?: ${{ steps.generate-skill-icons.outputs.updated }}"
-          echo "[PATH]: ${{ steps.generate-skill-icons.outputs.path }}"
+          echo "[LIST]: ${{ steps.skill-icons.outputs.list }}"
+          echo "[UPDATED]?: ${{ steps.skill-icons.outputs.updated }}"
+          echo "[PATH]: ${{ steps.skill-icons.outputs.path }}"
