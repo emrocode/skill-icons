@@ -1,6 +1,6 @@
-## :sparkles: Skill Icons
+## Skill Icons
 
-Generate dynamic, theme-aware tech stack icons for your GitHub profile README.
+:sparkles: Make your GitHub README pop with dynamic icons.
 
 ### Icons
 
