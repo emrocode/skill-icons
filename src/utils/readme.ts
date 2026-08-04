@@ -53,7 +53,7 @@ export function getListFromReadme(readmeContent: string, tag: string) {
 export function updateReadmeWithReferences(
   readmeContent: string,
   tag: string,
-  svgPaths: string[],
+  svgPaths: Array<string | null>,
   list: Array<{ name: string; items: string[] }>,
 ) {
   const blockRegex = createRegex(tag);
@@ -63,9 +63,11 @@ export function updateReadmeWithReferences(
   let updatedContent = readmeContent.replace(blockRegex, () => {
     const group = list[idx];
     const refKey = `${tag}_${idx}`;
-    const imagePath = svgPaths[idx] || '';
+    const imagePath = svgPaths[idx];
 
-    references.push(`[${refKey}]: ${imagePath}`);
+    if (imagePath) {
+      references.push(`[${refKey}]: ${imagePath}`);
+    }
 
     const itemsAttr = group?.items?.length
       ? ` icons="${group.items.join(',')}"`
@@ -73,7 +75,9 @@ export function updateReadmeWithReferences(
 
     idx++;
 
-    return `<!-- ${tag}_START${itemsAttr} -->\n![][${refKey}]\n<!-- ${tag}_END -->`;
+    return `<!-- ${tag}_START${itemsAttr} -->\n${
+      imagePath ? `\n![][${refKey}]\n` : ''
+    }\n<!-- ${tag}_END -->`;
   });
 
   const refRegex = createRefRegex(tag);
