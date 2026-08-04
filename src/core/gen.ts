@@ -18,13 +18,13 @@ export async function generateSvgFile({
   outPath: string;
 }) {
   const snapToPx = (value: number) => Math.round(value);
+
   const filename = parseSlug(slugs);
+  if (!filename) return null;
+
   const dir = path.join(process.cwd(), outPath);
 
-  if (dir) {
-    await fs.rm(dir, { recursive: true, force: true });
-    await fs.mkdir(dir, { recursive: true });
-  }
+  await fs.mkdir(dir, { recursive: true });
 
   const siIcons = slugs.map(i => getIcon(i));
   const iconSize = snapToPx(size * 0.8);
