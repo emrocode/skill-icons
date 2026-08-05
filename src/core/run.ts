@@ -1,4 +1,4 @@
-import { commitChanges } from '@/utils/commit.js';
+import { cleanup, commitChanges, generateManifest } from '@/utils/commit.js';
 import {
   getListFromReadme,
   readReadme,
@@ -34,6 +34,8 @@ export async function run() {
     const readme = await readReadme(filename);
     const list = getListFromReadme(readme, tag);
 
+    await cleanup(outPath);
+
     const svgs = await Promise.all(
       Object.entries(list).map(([, l]) =>
         generateSvgFile({
@@ -43,6 +45,11 @@ export async function run() {
           outPath,
         })
       ),
+    );
+
+    await generateManifest(
+      outPath,
+      svgs.filter((svg): svg is string => Boolean(svg)),
     );
 
     const updatedReadme = updateReadmeWithReferences(readme, tag, svgs, list);

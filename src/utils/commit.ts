@@ -1,8 +1,61 @@
 import * as exec from '@actions/exec';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+const MANIFEST_FILENAME = '.skill-icons.json';
+
+async function loadGeneratedFiles(outPath: string) {
+  const rootDir = process.env.GITHUB_WORKSPACE || process.cwd();
+  const manifestPath = path.resolve(rootDir, outPath, MANIFEST_FILENAME);
+
+  try {
+    const rawManifest = await fs.readFile(manifestPath, 'utf-8');
+    const parsedManifest = JSON.parse(rawManifest);
+    return Array.isArray(parsedManifest.generatedFiles)
+      ? parsedManifest.generatedFiles
+      : [];
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
+export async function cleanup(outPath: string) {
+  const rootDir = process.env.GITHUB_WORKSPACE || process.cwd();
+  const outDirPath = path.resolve(rootDir, outPath);
+  const generatedFiles = await loadGeneratedFiles(outPath);
+
+  for (const filePath of generatedFiles) {
+    const absoluteFilePath = path.resolve(rootDir, filePath);
+    const isInsideOutPath = absoluteFilePath.startsWith(outDirPath + path.sep);
+
+    if (!isInsideOutPath) {
+      continue;
+    }
+
+    await fs.rm(absoluteFilePath, { force: true });
+  }
+}
+
+export async function generateManifest(
+  outPath: string,
+  generatedFiles: string[],
+) {
+  const rootDir = process.env.GITHUB_WORKSPACE || process.cwd();
+  const manifestPath = path.resolve(rootDir, outPath, MANIFEST_FILENAME);
+  const outDirPath = path.dirname(manifestPath);
+  const manifest = { generatedFiles: Array.from(new Set(generatedFiles)) };
+
+  await fs.mkdir(outDirPath, { recursive: true });
+  await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+}
 
 export async function commitChanges(
   filename: string,
-  path: string,
+  outPath: string,
   gcmsg: string,
 ) {
   try {
@@ -19,8 +72,13 @@ export async function commitChanges(
       'github-actions[bot]@users.noreply.github.com',
     ]);
 
-    await exec.exec('git', ['add', filename]);
-    await exec.exec('git', ['add', path]);
+    const generatedFiles = await loadGeneratedFiles(outPath);
+    const manifestPath = path.join(outPath, MANIFEST_FILENAME);
+    const filesToStage = [filename, manifestPath, ...generatedFiles];
+
+    for (const filePath of filesToStage) {
+      await exec.exec('git', ['add', '-A', '--', filePath]);
+    }
 
     const { exitCode } = await exec.getExecOutput('git', [
       'diff',
