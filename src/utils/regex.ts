@@ -8,5 +8,5 @@ export function createRegex(tag: string) {
 // multiline md image reference blocks
 // (e.g., '[tag_0]: url')
 export function createRefRegex(tag: string) {
-  return new RegExp(`^\\[${tag}_\\d+\\]:.*$\\n?`, 'gm');
+  return new RegExp(`^\\[${tag}_\\d+\\]:.*$\\r?\\n?`, 'gm');
 }
