@@ -59,7 +59,7 @@ export async function run() {
     }
 
     if (process.env.GITHUB_ACTIONS === 'true') {
-      await commitChanges(gcmsg);
+      await commitChanges(gcmsg, outPath);
     }
 
     core.setOutput('list', list);
