@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const MANIFEST_FILENAME = '.skill-icons.json';
 
-async function loadGeneratedFiles(outPath: string) {
+async function loadGeneratedFiles(outPath: string): Promise<string[]> {
   const rootDir = process.env.GITHUB_WORKSPACE || process.cwd();
   const manifestPath = path.resolve(rootDir, outPath, MANIFEST_FILENAME);
 
@@ -28,16 +28,12 @@ export async function cleanup(outPath: string) {
   const outDirPath = path.resolve(rootDir, outPath);
   const generatedFiles = await loadGeneratedFiles(outPath);
 
-  for (const filePath of generatedFiles) {
-    const absoluteFilePath = path.resolve(rootDir, filePath);
-    const isInsideOutPath = absoluteFilePath.startsWith(outDirPath + path.sep);
+  const deleteTasks = generatedFiles
+    .map(filePath => path.resolve(rootDir, filePath))
+    .filter(fullPath => fullPath.startsWith(outDirPath + path.sep))
+    .map(fullPath => fs.rm(fullPath, { force: true }));
 
-    if (!isInsideOutPath) {
-      continue;
-    }
-
-    await fs.rm(absoluteFilePath, { force: true });
-  }
+  await Promise.all(deleteTasks);
 }
 
 export async function generateManifest(
@@ -76,9 +72,8 @@ export async function commitChanges(gcmsg: string, outPath: string) {
       '--quiet',
     ], { ignoreReturnCode: true });
 
-    const branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
-
     if (exitCode === 1) {
+      const branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
       await exec.exec('git', ['commit', '-m', gcmsg]);
       await exec.exec('git', ['push', 'origin', `HEAD:${branch}`]);
     }
