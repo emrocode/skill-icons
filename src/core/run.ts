@@ -53,20 +53,19 @@ export async function run() {
     );
 
     const updatedReadme = updateReadmeWithReferences(readme, tag, svgs, list);
-    const hasChanged = readme !== updatedReadme;
 
-    if (hasChanged) {
+    if (readme !== updatedReadme) {
       await writeReadme(updatedReadme, filename);
     }
 
     if (process.env.GITHUB_ACTIONS === 'true') {
-      await commitChanges(filename, outPath, gcmsg);
+      await commitChanges(gcmsg);
     }
 
     core.setOutput('list', list);
     // * 'updated' ignores icon options
     // only tracks markdown changes or custom out_path
-    core.setOutput('updated', hasChanged);
+    core.setOutput('updated', readme !== updatedReadme);
     core.setOutput('path', outPath);
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);

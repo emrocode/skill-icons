@@ -53,11 +53,7 @@ export async function generateManifest(
   await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 }
 
-export async function commitChanges(
-  filename: string,
-  outPath: string,
-  gcmsg: string,
-) {
+export async function commitChanges(gcmsg: string) {
   try {
     await exec.exec('git', [
       'config',
@@ -72,13 +68,7 @@ export async function commitChanges(
       'github-actions[bot]@users.noreply.github.com',
     ]);
 
-    const generatedFiles = await loadGeneratedFiles(outPath);
-    const manifestPath = path.join(outPath, MANIFEST_FILENAME);
-    const filesToStage = [filename, manifestPath, ...generatedFiles];
-
-    for (const filePath of filesToStage) {
-      await exec.exec('git', ['add', '-A', '--', filePath]);
-    }
+    await exec.exec('git', ['add', '-A']);
 
     const { exitCode } = await exec.getExecOutput('git', [
       'diff',
