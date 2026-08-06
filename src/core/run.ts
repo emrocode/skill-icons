@@ -10,12 +10,14 @@ import { generateSvgFile } from './gen.js';
 
 // options
 // TODO: allow each delimiter to parse its own isolated options
-const DEFAULT_ICON_SIZE = 48;
-const DEFAULT_PER_ROW = 15;
-const DEFAULT_OUT_PATH = 'assets/svgs';
-const DEFAULT_TAG = 'SKILL_ICONS';
-const DEFAULT_FILENAME = 'README.md';
-const DEFAULT_GCMSG = 'chore(skill-icons): update assets and docs';
+const DEFAULTS = {
+  ICON_SIZE: 48,
+  PER_ROW: 15,
+  OUT_PATH: 'assets/svgs',
+  TAG: 'SKILL_ICONS',
+  FILENAME: 'README.md',
+  GCMSG: 'chore(si): update assets and docs',
+};
 
 export async function run() {
   try {
@@ -26,10 +28,10 @@ export async function run() {
     const rawFilename = core.getInput('filename', { required: false });
     const rawGcmsg = core.getInput('commit_message', { required: false });
 
-    const tag = rawTag || DEFAULT_TAG;
-    const filename = rawFilename || DEFAULT_FILENAME;
-    const outPath = rawOutPath || DEFAULT_OUT_PATH;
-    const gcmsg = rawGcmsg || DEFAULT_GCMSG;
+    const tag = rawTag || DEFAULTS.TAG;
+    const filename = rawFilename || DEFAULTS.FILENAME;
+    const outPath = rawOutPath || DEFAULTS.OUT_PATH;
+    const gcmsg = rawGcmsg || DEFAULTS.GCMSG;
 
     const readme = await readReadme(filename);
     const list = getListFromReadme(readme, tag);
@@ -40,8 +42,8 @@ export async function run() {
       Object.entries(list).map(([, l]) =>
         generateSvgFile({
           slugs: l.items,
-          size: parseInt(rawIconSize) || DEFAULT_ICON_SIZE,
-          perRow: parseInt(rawPerRow) || DEFAULT_PER_ROW,
+          size: parseInt(rawIconSize) || DEFAULTS.ICON_SIZE,
+          perRow: parseInt(rawPerRow) || DEFAULTS.PER_ROW,
           outPath,
         })
       ),
@@ -52,20 +54,25 @@ export async function run() {
       svgs.filter((svg): svg is string => Boolean(svg)),
     );
 
-    const updatedReadme = updateReadmeWithReferences(readme, tag, svgs, list);
+    const newReadme = updateReadmeWithReferences({
+      content: readme,
+      tag,
+      svgPaths: svgs,
+      list,
+    });
 
-    if (readme !== updatedReadme) {
-      await writeReadme(updatedReadme, filename);
+    if (readme !== newReadme) {
+      await writeReadme(newReadme, filename);
     }
 
     if (process.env.GITHUB_ACTIONS === 'true') {
-      await commitChanges(gcmsg, outPath);
+      await commitChanges({ filename, outPath, gcmsg });
     }
 
     core.setOutput('list', list);
     // * 'updated' ignores icon options
     // only tracks markdown changes or custom out_path
-    core.setOutput('updated', readme !== updatedReadme);
+    core.setOutput('updated', readme !== newReadme);
     core.setOutput('path', outPath);
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
