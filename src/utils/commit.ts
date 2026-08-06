@@ -49,7 +49,13 @@ export async function generateManifest(
   await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 }
 
-export async function commitChanges(gcmsg: string, outPath: string) {
+export async function commitChanges(
+  { filename, outPath, gcmsg }: {
+    filename: string;
+    outPath: string;
+    gcmsg: string;
+  },
+) {
   try {
     await exec.exec('git', [
       'config',
@@ -64,6 +70,7 @@ export async function commitChanges(gcmsg: string, outPath: string) {
       'github-actions[bot]@users.noreply.github.com',
     ]);
 
+    await exec.exec('git', ['add', filename]);
     await exec.exec('git', ['add', '-A', outPath]);
 
     const { exitCode } = await exec.getExecOutput('git', [
