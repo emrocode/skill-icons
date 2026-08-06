@@ -30,7 +30,7 @@ inputs:
   commit_message:
     description: A custom git commit message
     required: false
-    default: "chore(skill-icons): update assets and docs"
+    default: "chore(si): update assets and docs"
 
 outputs:
   list:
