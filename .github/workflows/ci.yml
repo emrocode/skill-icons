@@ -17,9 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -41,8 +38,7 @@ jobs:
         id: skill-icons
         uses: ./
 
-      - name: Print Output
-        id: print-output
+      - name: Print output
         run: |
           echo "[LIST]: ${{ steps.skill-icons.outputs.list }}"
           echo "[UPDATED]?: ${{ steps.skill-icons.outputs.updated }}"
