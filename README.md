@@ -2,7 +2,12 @@
 
 ### Overview
 
-This action allows you to _**add clean, responsive, and theme-aware tech stack icons to your GitHub profile README**_. The icons automatically adapt to the viewer's GitHub theme (light or dark mode), ensuring your profile always looks professional.
+**Skill Icons** is an automated GitHub Action that generates clean, modern, and theme-aware tech stack icon grids directly in your repository.
+
+- **Theme-Adaptive**: Automatically switches colors and contrast to match the viewer's GitHub theme (light or dark mode).
+- **Self-Hosted & Reliable**: Commits optimized, vectorized SVGs directly to your repo. No external server downtime, tracking, or rate limits.
+- **Simple Icons Catalog**: Access to 3,000+ official brand icons out of the box.
+- **Fully Configurable**: Easily tweak icon sizes, row layouts, output paths, and custom commit messages.
 
 ### Icons
 
