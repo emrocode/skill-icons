@@ -1,6 +1,7 @@
 import { getBackgroundColor, getContrastColor } from '@/utils/color.js';
 import { parseSlug } from '@/utils/parser.js';
 import { getIcon } from '@/utils/si.js';
+import { vectorizeNestedSvgs } from '@/utils/svg.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import satori from 'satori';
@@ -86,7 +87,11 @@ export async function generateSvgFile({
     fonts: [],
   });
 
-  const { data: svg } = optimize(rawSvg, {
+  // vectorize nested svgs
+  // see https://github.com/vercel/satori/issues/623
+  const vectorizedSvg = vectorizeNestedSvgs(rawSvg);
+
+  const { data: svg } = optimize(vectorizedSvg, {
     multipass: true,
     plugins: [
       {

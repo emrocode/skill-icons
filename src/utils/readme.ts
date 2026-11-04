@@ -2,6 +2,22 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRefRegex, createRegex } from './regex.js';
 
+const CODE_BLOCK_REGEX =
+  /(```[\s\S]*?```|~~~[\s\S]*?~~~|<pre[\s\S]*?<\/pre>|<code[\s\S]*?<\/code>)/gi;
+
+function maskCodeBlocks(content: string) {
+  const blocks: string[] = [];
+  const masked = content.replace(
+    CODE_BLOCK_REGEX,
+    match => `\x00BLOCK_${blocks.push(match) - 1}\x00`,
+  );
+  return {
+    masked,
+    unmask: (str: string) =>
+      str.replace(/\x00BLOCK_(\d+)\x00/g, (_, id) => blocks[Number(id)]),
+  };
+}
+
 export async function readReadme(fileName: string) {
   const rootDir = process.env.GITHUB_WORKSPACE || process.cwd();
   const filePath = path.resolve(rootDir, fileName);
@@ -15,12 +31,13 @@ export async function writeReadme(content: string, fileName: string) {
 }
 
 export function getListFromReadme(readmeContent: string, tag: string) {
+  const { masked } = maskCodeBlocks(readmeContent);
   const regex = createRegex(tag);
   const results = [];
   let match: RegExpExecArray | null;
   let idx = 0;
 
-  while ((match = regex.exec(readmeContent)) !== null) {
+  while ((match = regex.exec(masked)) !== null) {
     const tagAttributes = match[2];
     const innerContent = match[3];
 
@@ -58,11 +75,12 @@ export function updateReadmeWithReferences(
     list: Array<{ name: string; items: string[] }>;
   },
 ) {
+  const { masked, unmask } = maskCodeBlocks(content);
   const blockRegex = createRegex(tag);
   let idx = 0;
   const references: string[] = [];
 
-  let newReadme = content.replace(blockRegex, () => {
+  let newReadme = masked.replace(blockRegex, () => {
     const group = list[idx];
     const refKey = `${tag}_${idx}`;
     const imagePath = svgPaths[idx];
@@ -85,9 +103,11 @@ export function updateReadmeWithReferences(
   const refRegex = createRefRegex(tag);
   newReadme = newReadme.replace(refRegex, '').trimEnd();
 
+  const restored = unmask(newReadme);
+
   if (references.length === 0) {
-    return newReadme;
+    return restored;
   }
 
-  return `${newReadme}\n\n${references.join('\n')}\n`;
+  return `${restored}\n\n${references.join('\n')}\n`;
 }
