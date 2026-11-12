@@ -19,10 +19,22 @@ const DEFAULTS = {
   GCMSG: 'chore(si): update assets and docs',
 };
 
+// positive integer input or default
+function getIntInput(name: string, fallback: number): number {
+  const raw = core.getInput(name, { required: false }).trim();
+  if (!raw) return fallback;
+
+  const value = Number(raw);
+  if (Number.isInteger(value) && value > 0) return value;
+
+  core.warning(
+    `[${name}] must be a positive integer, received "${raw}". Using default ${fallback}.`,
+  );
+  return fallback;
+}
+
 export async function run() {
   try {
-    const rawIconSize = core.getInput('icon_size', { required: false });
-    const rawPerRow = core.getInput('per_row', { required: false });
     const rawOutPath = core.getInput('out_path', { required: false });
     const rawTag = core.getInput('tag', { required: false });
     const rawFilename = core.getInput('filename', { required: false });
@@ -32,6 +44,8 @@ export async function run() {
     const filename = rawFilename || DEFAULTS.FILENAME;
     const outPath = rawOutPath || DEFAULTS.OUT_PATH;
     const gcmsg = rawGcmsg || DEFAULTS.GCMSG;
+    const iconSize = getIntInput('icon_size', DEFAULTS.ICON_SIZE);
+    const perRow = getIntInput('per_row', DEFAULTS.PER_ROW);
 
     const readme = await readReadme(filename);
     const list = getListFromReadme(readme, tag);
@@ -42,8 +56,8 @@ export async function run() {
       Object.entries(list).map(([, l]) =>
         generateSvgFile({
           slugs: l.items,
-          size: parseInt(rawIconSize) || DEFAULTS.ICON_SIZE,
-          perRow: parseInt(rawPerRow) || DEFAULTS.PER_ROW,
+          size: iconSize,
+          perRow,
           outPath,
         })
       ),

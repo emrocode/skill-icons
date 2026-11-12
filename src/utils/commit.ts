@@ -57,6 +57,22 @@ export async function commitChanges(
   },
 ) {
   try {
+    // detached HEAD (e.g. fork PRs) has no branch to push back to
+    const { exitCode: refExitCode, stdout } = await exec.getExecOutput(
+      'git',
+      ['symbolic-ref', '--short', 'HEAD'],
+      { ignoreReturnCode: true, silent: true },
+    );
+
+    if (refExitCode !== 0) {
+      console.log('[commit] HEAD is detached, skipping.');
+      return;
+    }
+
+    // branch checked out by actions/checkout
+    // used for the push target
+    const branch = stdout.trim();
+
     await exec.exec('git', [
       'config',
       '--global',
@@ -80,7 +96,6 @@ export async function commitChanges(
     ], { ignoreReturnCode: true });
 
     if (exitCode === 1) {
-      const branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
       await exec.exec('git', ['commit', '-m', gcmsg]);
       await exec.exec('git', ['push', 'origin', `HEAD:${branch}`]);
     }

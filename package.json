@@ -6,7 +6,7 @@
     "@xmldom/xmldom": "^0.9.12",
     "colorjs.io": "^0.7.1",
     "satori": "^0.63.2",
-    "simple-icons": "^16.36.0",
+    "simple-icons": "^16.37.0",
     "svgo": "^4.1.0"
   },
   "devDependencies": {
