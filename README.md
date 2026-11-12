@@ -46,10 +46,10 @@ permissions:
 
 ### README
 
-Copy and paste the markdown snippet below into your `README.md` file. _**Replace the technology names with your preferred stack**_.
+Copy and paste the markdown snippet below into your `README.md` file. **Replace the technology names with your preferred stack**.
 
 > [!IMPORTANT]
-> **<sup>All technology names must match official [simpleicons](https://simpleicons.org/) slugs</sup>**
+> **All technology names must match official [simpleicons](https://simpleicons.org/) slugs**
 
 ```md
 ### 🛠️ Tech Stack
